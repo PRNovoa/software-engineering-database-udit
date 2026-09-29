@@ -2,19 +2,19 @@
 def create_dictionary():
     global dictionary
     dictionary = {}
-    db = open("database.txt", "r", encoding="utf-8")
-    for line in db:
-        k, v = line.strip().split(":", 1)
-        dictionary[k] = v
+    with open("database.txt", "r", encoding="utf-8") as db:
+        for line in db:
+            k, v = line.strip().split(":", 1)
+            dictionary[k] = v
 
 def create(key, value):
-    # Ensure the dictionary is initialized
-    db = open("database.txt", "a+", encoding="utf-8")
-    db.write(f"{key}:{value}\n")
+    # Dictionary should be initialized beforehand
+    with open("database.txt", "a+", encoding="utf-8") as db:
+        db.write(f"{key}:{value}\n")
     dictionary[key] = value
 
 def read(key):
-    # Ensure the dictionary is initialized
+    # Dictionary should be initialized beforehand
     return dictionary.get(key)
     
 #Key added by the one who created the entry or generated automatically??? aka Hash
