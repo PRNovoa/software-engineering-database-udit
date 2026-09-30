@@ -10,6 +10,7 @@ See the [README](README.md) for setup instructions.
 - If there's no issue related to what you're going to do add it first.
 - Work and push changes on that branch. Never push directly to `main`; changes must go through a pull request.
 - Use clear English names and `snake_case` for Python functions and variables. Follow the surrounding code and avoid unrelated refactoring.
+- Implement the database logic ourselves and use Python's standard library where possible. Avoid external libraries unless they are necessary, and explain why in the PR.
 - Write commits as `<type>: <short description>`. Use `feat`, `fix`, `docs`, `test`, or `chore`, for example `docs: add contributing guide`.
 - Keep local environments, generated database files, and credentials out of commits.
 
