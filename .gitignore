@@ -7,3 +7,4 @@ database.txt
 *.db
 *.log
 .env
+*.egg-info/
