@@ -1,10 +1,15 @@
 # Database Exercise
 
-Database exercise for the Software Engineering course.
+Database exercise for the Software Engineering course. The project currently
+contains the initial scaffolding for a file-backed key-value database written in
+Python.
+
+## Requirements
+
+- Python 3.9 or newer
+- No runtime dependencies beyond the Python standard library
 
 ## Setup
-
-Use Python 3. The current code only uses the standard library, so no dependencies need installing.
 
 ```sh
 git clone https://github.com/PRNovoa/software-engineering-database-udit.git
@@ -15,7 +20,35 @@ source .venv/bin/activate
 
 On Windows, activate with `.venv\Scripts\activate` instead.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for branch, test, and approval requirements.
+Install the project and its development dependencies, including `pytest`, in
+editable mode:
+
+```sh
+python -m pip install --editable ".[dev]"
+```
+
+## Testing
+
+Run the test suite with `pytest`:
+
+```sh
+pytest
+```
+
+The current setup test verifies that the CRUD module can be imported.
+
+## Project structure
+
+```text
+src/
+└── crud.py
+tests/
+└── test_crud.py
+pyproject.toml
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for branch, test, and approval
+requirements.
 
 ## Authors
 
