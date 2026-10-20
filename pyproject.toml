@@ -6,12 +6,11 @@ build-backend = "setuptools.build_meta"
 name = "software-engineering-database"
 version = "0.1.0"
 description = "A simple key-value database implemented in Python"
-requires-python = "==3.14"
+requires-python = ">=3.14,<3.16"
 dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
-
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["src*"]

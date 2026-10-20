@@ -6,7 +6,7 @@ Python.
 
 ## Requirements
 
-- Python 3.14 
+- Python >=3.14,<3.16 
 - No runtime dependencies beyond the Python standard library
 
 ## Setup
@@ -35,7 +35,7 @@ Run the test suite with `pytest`:
 pytest
 ```
 
-The current setup test verifies that the CRUD module can be imported.
+The test suite is configured to run with pytest.
 
 ## Project structure
 
