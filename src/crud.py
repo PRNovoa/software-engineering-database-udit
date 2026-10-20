@@ -22,15 +22,15 @@ def update_entry(key, value, db, cache):
     # TODO 
     # Update the entry in the database and the dictionary
     # Should mark previous entry location with a tombstone
-    return None
+    raise NotImplementedError("Update entry functionality is not implemented yet.")
 
 def delete_entry(key, db, cache):
     # TODO
     # Mark the entry as deleted in the database and remove it from the dictionary
     # Should mark previous entry location with a tombstone
-    return None
+    raise NotImplementedError("Delete entry functionality is not implemented yet.")
 
 def delete_tombstones(db):
     # TODO
     # Remove all tombstone entries from the database
-    return None
+    raise NotImplementedError("Delete tombstones functionality is not implemented yet.")
