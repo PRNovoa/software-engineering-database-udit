@@ -6,7 +6,7 @@ Python.
 
 ## Requirements
 
-- Python 3.9 or newer
+- Python 3.14 
 - No runtime dependencies beyond the Python standard library
 
 ## Setup
