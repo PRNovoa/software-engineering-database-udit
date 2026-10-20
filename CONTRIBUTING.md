@@ -6,6 +6,7 @@ See the [README](README.md) for setup instructions.
 
 ## Making changes
 
+- Pick issues by priority: `Must` first, then `Should`, then `Could`.
 - Create a branch named `<type>/<issue>-<short-description>`, for example `docs/5-contributing` or `fix/1-create-dictionary`.
 - If there's no issue related to what you're going to do add it first.
 - Work and push changes on that branch. Never push directly to `main`; changes must go through a pull request.
@@ -13,6 +14,16 @@ See the [README](README.md) for setup instructions.
 - Implement the database logic ourselves and use Python's standard library where possible. Avoid external libraries unless they are necessary, and explain why in the PR.
 - Write commits as `<type>: <short description>`. Use `feat`, `fix`, `docs`, `test`, or `chore`, for example `docs: add contributing guide`.
 - Keep local environments, generated database files, and credentials out of commits.
+
+## Issues and labels
+
+Every open issue gets exactly one priority label, following the MoSCoW method:
+
+- `Must`: required for the project to work. Do these first.
+- `Should`: important, but the project still works without it. Do these after the `Must` issues.
+- `Could`: nice to have. Do these only once the `Must` and `Should` issues are covered.
+
+Add the label when you open the issue. If you think a priority is wrong, say so in the issue before you change it.
 
 ## Pull requests
 
