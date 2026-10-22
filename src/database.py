@@ -1,5 +1,8 @@
 import os
 
+def open_db(db_path):
+    return open(db_path, "a+", encoding="utf-8")
+
 def compact_db(db):
     temp_cache = {}
     temp_path = db.name + ".tmp"
@@ -21,4 +24,3 @@ def compact_db(db):
         db_temp.flush()
         os.fsync(db_temp.fileno())
     os.replace(temp_path, db.name)
-
