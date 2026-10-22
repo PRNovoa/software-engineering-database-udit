@@ -5,7 +5,6 @@ def open_db(db_path):
 
 def close_db(db):
     if db.closed:
-        db.close()
         return
     
     try:
