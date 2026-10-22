@@ -1,5 +1,24 @@
 import os
 
+def open_db(db_path):
+    return open(db_path, "a+", encoding="utf-8")
+
+def create_cache(db):
+    cache = {}
+    db.seek(0)
+    for line in db:
+        k, v = line.rstrip("\n").split(":", 1)
+        cache[k] = v
+    return cache
+
+def start_db(db_path):
+    with open_db(db_path) as db:
+        compact_db(db)
+
+    db = open_db(db_path)
+    cache = create_cache(db)
+    return db, cache
+
 def compact_db(db):
     temp_cache = {}
     temp_path = db.name + ".tmp"
