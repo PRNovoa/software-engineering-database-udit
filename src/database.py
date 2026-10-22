@@ -3,6 +3,9 @@ import os
 def open_db(db_path):
     return open(db_path, "a+", encoding="utf-8")
 
+def close_db(db):
+    db.close()
+
 def compact_db(db):
     temp_cache = {}
     temp_path = db.name + ".tmp"
