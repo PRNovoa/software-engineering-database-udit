@@ -18,5 +18,7 @@ def compact_db(db):
             if value != "tombstoned":
                 db_temp.write(f"{key}:{value}\n")
 
+        db_temp.flush()
+        os.fsync(db_temp.fileno())
     os.replace(temp_path, db.name)
 
