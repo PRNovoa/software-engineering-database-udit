@@ -1,11 +1,11 @@
 import os
 
-def compact_db(db_path):
+def compact_db(db):
     temp_cache = {}
-    temp_path = db_path + ".tmp"
+    temp_path = db.name + ".tmp"
 
-    with open(db_path, "r", encoding="utf-8") as db:
-        lines = db.readlines()
+    db.seek(0)
+    lines = db.readlines()
 
     with open(temp_path, "w", encoding="utf-8") as db_temp:
 
@@ -15,8 +15,8 @@ def compact_db(db_path):
                 temp_cache[key] = value
 
         for key, value in reversed(temp_cache.items()):
-            if value != "toombstoned":
+            if value != "tombstoned":
                 db_temp.write(f"{key}:{value}\n")
 
-    os.replace(temp_path, db_path)
+    os.replace(temp_path, db.name)
 
