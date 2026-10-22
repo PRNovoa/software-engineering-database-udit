@@ -1,4 +1,4 @@
-from src.crud import create_entry, read_entry
+from src.entries import create_entry, read_entry
 
 
 # Set a key-value pair and verify that get() returns the stored value.
