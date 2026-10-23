@@ -1,5 +1,3 @@
-
-
 # TODO: Move db handling to a separate module or class
 def create_cache():
     cache = {}
@@ -29,9 +27,9 @@ def entry_exists(key, cache):
     return key in cache
 
 def delete_entry(key, db, cache):
-    if key in cache:
+    if entry_exists(key, cache):
+        create_entry(key, "tombstoned", db, cache)
         del cache[key]
-        create_entry(key, "TOMBSTONE", db, cache)
         return True
     return False
 
