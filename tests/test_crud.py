@@ -4,23 +4,22 @@ def test_set(tmp_path):
     cache = {}
     db_path = tmp_path / "test_database.txt"
     with open(db_path, "w", encoding="utf-8") as db:
-        create_entry("name", "alice", db, cache)
+        create_entry("name", "pablo", db, cache)
 
-    assert cache["name"] == "alice"
-    contents = db_path.read_text(encoding="utf-8")
-    assert "name" in contents and "alice" in contents
+    assert cache["name"] == "pablo"
+    assert db_path.read_text(encoding="utf-8") == "name:pablo\n"
 
 def test_get():
-    cache = {"name": "alice"}
-    assert read_entry("name", cache) == "alice"
+    cache = {"name": "pablo"}
+    assert read_entry("name", cache) == "pablo"
 
 # Set an existing key again and verify that its value is updated.
 def test_set_existing_key(tmp_path):
     cache = {}
     with open(tmp_path / "test_database.txt", "w", encoding="utf-8") as db:
-        create_entry("name", "alice", db, cache)
-        create_entry("name", "bob", db, cache)
-    assert read_entry("name", cache) == "bob"
+        create_entry("name", "pablo", db, cache)
+        create_entry("name", "gonzalo", db, cache)
+    assert read_entry("name", cache) == "gonzalo"
 
 
 # Verify that get() returns None for a missing key.
