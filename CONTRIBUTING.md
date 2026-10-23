@@ -27,7 +27,14 @@ Add the label when you open the issue. If you think a priority is wrong, say so 
 
 ## Pull requests
 
-Open a PR with a short description of what changed, why, and how you tested it. Link the issue with `Closes #5` if the PR fully resolves it, or `Related to #5` if it only covers part of the work.
+Open a PR with a short description of what changed, why, and how you tested it.
+
+Every PR description must reference its issue using `#` followed by the actual issue number. For example:
+
+- `Closes #31` if the PR fully resolves the issue.
+- `Related to #31` if the PR only covers part of the work or is related to the issue.
+
+An issue reference only in the title, branch name, commit message, or comments does not satisfy this requirement.
 
 - Keep `main` production-ready. Merge only completed, tested changes with all automated tests passing.
 - All four members must approve the final changes. The PR author confirms approval in a comment; the other three submit approving reviews. If the code changes afterward, everyone must approve again.

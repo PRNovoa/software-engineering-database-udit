@@ -6,7 +6,7 @@ Python.
 
 ## Requirements
 
-- Python >=3.14,<3.16 
+- Python >=3.14,<3.16
 - No runtime dependencies beyond the Python standard library
 
 ## Setup
@@ -41,9 +41,11 @@ The test suite is configured to run with pytest.
 
 ```text
 src/
-└── crud.py
+├── __init__.py
+├── database.py
+└── entries.py
 tests/
-└── test_crud.py
+└── test_entries.py
 pyproject.toml
 ```
 
