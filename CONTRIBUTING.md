@@ -1,6 +1,10 @@
 # Contributing
 
-Keep changes small and focused on one issue. Check the [GitHub issues](https://github.com/PRNovoa/software-engineering-database-udit/issues) before starting, and comment on the relevant issue so we avoid duplicate work. Discuss larger design decisions there first.
+Keep changes small and focused on one issue. Check the [GitHub issues](https://github.com/PRNovoa/software-engineering-database-udit/issues) before starting, and comment on the relevant issue so we avoid duplicate work.
+
+Larger design decisions can be discussed in [Discussions](https://github.com/PRNovoa/software-engineering-database-udit/discussions) first. It's optional, but useful when the team needs to agree on something before opening an issue for the work.
+
+Follow the design decisions in [docs/design.md](docs/design.md). When a new one is agreed, add it there.
 
 See the [README](README.md) for setup instructions.
 
