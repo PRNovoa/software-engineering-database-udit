@@ -19,10 +19,11 @@ def read_entry(key, cache):
     return cache.get(key)
 
 def update_entry(key, value, db, cache): 
-    # TODO 
-    # Update the entry in the database and the dictionary
-    # Should mark previous entry location with a tombstone
-    raise NotImplementedError("Update entry functionality is not implemented yet.")
+    if key not in cache:
+        return False
+        
+    create_entry(key, value, db, cache)
+    return True
 
 def delete_entry(key, db, cache):
     # TODO
