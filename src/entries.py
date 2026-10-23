@@ -25,6 +25,9 @@ def update_entry(key, value, db, cache):
     create_entry(key, value, db, cache)
     return True
 
+def entry_exists(key, cache):
+    return key in cache
+
 def delete_entry(key, db, cache):
     # TODO
     # Mark the entry as deleted in the database and remove it from the dictionary
