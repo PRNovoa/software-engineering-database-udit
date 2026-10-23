@@ -3,6 +3,16 @@ import os
 def open_db(db_path):
     return open(db_path, "a+", encoding="utf-8")
 
+def close_db(db):
+    if db.closed:
+        return
+    
+    try:
+        db.flush()
+        os.fsync(db.fileno())
+    finally: 
+        db.close()
+
 def compact_db(db):
     temp_cache = {}
     temp_path = db.name + ".tmp"
