@@ -4,6 +4,8 @@ Database exercise for the Software Engineering course. The project currently
 contains the initial scaffolding for a file-backed key-value database written in
 Python.
 
+See [docs/design.md](docs/design.md) for how the database works and why.
+
 ## Requirements
 
 - Python >=3.14,<3.16
@@ -40,6 +42,8 @@ The test suite is configured to run with pytest.
 ## Project structure
 
 ```text
+docs/
+└── design.md
 src/
 ├── __init__.py
 ├── database.py
