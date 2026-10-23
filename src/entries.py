@@ -29,10 +29,11 @@ def entry_exists(key, cache):
     return key in cache
 
 def delete_entry(key, db, cache):
-    # TODO
-    # Mark the entry as deleted in the database and remove it from the dictionary
-    # Should mark previous entry location with a tombstone
-    raise NotImplementedError("Delete entry functionality is not implemented yet.")
+    if key in cache:
+        del cache[key]
+        create_entry(key, "TOMBSTONE", db, cache)
+        return True
+    return False
 
 def delete_tombstones(db):
     # TODO
