@@ -26,10 +26,7 @@ def update_entry(key, value, db, cache):
     return True
 
 def entry_exists(key, cache):
-    if key in cache:
-        return True
-    else:
-       raise KeyError(f"Key '{key}' does not exist in the cache.")
+    return key in cache
 
 def delete_entry(key, db, cache):
     # TODO
