@@ -1,12 +1,3 @@
-# TODO: Move db handling to a separate module or class
-def create_cache():
-    cache = {}
-    with open("database.txt", "r", encoding="utf-8") as db:
-        for line in db:
-            k, v = line.strip().split(":", 1)
-            cache[k] = v
-
-
 # Dictionary should be initialized beforehand
 
 def create_entry(key, value, db, cache):

@@ -1,7 +1,26 @@
 import os
 
-def open_db(db_path):
-    return open(db_path, "a+", encoding="utf-8")
+def open_db(db_path, mode="a+"):
+    return open(db_path, mode, encoding="utf-8")
+
+def create_cache(db):
+    cache = {}
+    db.seek(0)
+    for line in db:
+        k, v = line.rstrip("\n").split(":", 1)
+        cache[k] = v
+    return cache
+
+def start_db(db_path):
+    db = open_db(db_path)
+    try:
+        compact_db(db)
+    finally:
+        db.close()
+
+    db = open_db(db_path)
+    cache = create_cache(db)
+    return db, cache
 
 def close_db(db):
     if db.closed:
@@ -20,7 +39,7 @@ def compact_db(db):
     db.seek(0)
     lines = db.readlines()
 
-    with open(temp_path, "w", encoding="utf-8") as db_temp:
+    with open_db(temp_path, "w") as db_temp:
 
         for line in reversed(lines):
             key, value = line.rstrip("\n").split(":", 1,)
