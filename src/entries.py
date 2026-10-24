@@ -1,5 +1,22 @@
 # Dictionary should be initialized beforehand
 
+TOMBSTONE_VALUE = "tombstoned"
+
+def validate_entry(key, value, allow_tombstone=False):
+    
+    try: 
+        key.encode("utf-8")
+        value.encode("utf-8")
+    except UnicodeEncodeError:
+        raise ValueError("Key and value must be valid UTF-8 strings.")
+
+    if ":" in key:
+        raise ValueError("Key cannot contain ':' character.")
+    if "\n" in key or "\r" in key or "\n" in value or "\r" in value:
+        raise ValueError("Key and value cannot contain newline characters.")
+    if not allow_tombstone and value == TOMBSTONE_VALUE:
+        raise ValueError("Tombstoned values are not allowed.")
+
 def create_entry(key, value, db, cache):
     db.write(f"{key}:{value}\n")
     cache[key] = value
