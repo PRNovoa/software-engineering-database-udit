@@ -23,8 +23,3 @@ def delete_entry(key, db, cache):
         del cache[key]
         return True
     return False
-
-def delete_tombstones(db):
-    # TODO
-    # Remove all tombstone entries from the database
-    raise NotImplementedError("Delete tombstones functionality is not implemented yet.")
