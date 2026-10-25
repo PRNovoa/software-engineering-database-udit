@@ -22,7 +22,7 @@ def start_db(db_path):
     db = open_db(db_path)
     try:
         cache = create_cache(db)
-    except Exception: 
+    except BaseException: 
         db.close()
         raise
 
