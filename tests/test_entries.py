@@ -1,4 +1,4 @@
-from src.crud import create_entry, read_entry
+from src.entries import create_entry, read_entry
 
 def test_set(tmp_path):
     cache = {}
