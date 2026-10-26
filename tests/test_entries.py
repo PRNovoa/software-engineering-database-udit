@@ -16,11 +16,6 @@ def test_set(tmp_path):
     assert cache["name"] == "pablo"
     assert db_path.read_text(encoding="utf-8") == "name:pablo\n"
 
-
-def test_get():
-    cache = {"name": "pablo"}
-    assert read_entry("name", cache) == "pablo"
-
 def test_get():
     cache = {"name": "pablo"}
     assert read_entry("name", cache) == "pablo"
