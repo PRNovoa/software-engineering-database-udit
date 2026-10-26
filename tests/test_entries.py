@@ -46,7 +46,7 @@ def test_different_keys(tmp_path):
     assert read_entry("b", cache) == "2"
 
 
-# Update an existing key: returns True, cache has the new value, file gets a new line.
+# Update an existing key: returns True.
 def test_update_existing_key(tmp_path):
     cache = {}
     db_path = tmp_path / "test_database.txt"
@@ -58,7 +58,7 @@ def test_update_existing_key(tmp_path):
     assert db_path.read_text(encoding="utf-8") == "name:pablo\nname:gonzalo\n"
 
 
-# Update a missing key: returns False, file and cache don't change.
+# Update a missing key: returns False.
 def test_update_missing_key(tmp_path):
     cache = {}
     db_path = tmp_path / "test_database.txt"
@@ -70,7 +70,7 @@ def test_update_missing_key(tmp_path):
     assert db_path.read_text(encoding="utf-8") == "name:pablo\n"
 
 
-# Delete an existing key: returns True, key is gone, last line is the tombstone.
+# Delete an existing key: returns True.
 def test_delete_existing_key(tmp_path):
     cache = {}
     db_path = tmp_path / "test_database.txt"
@@ -84,7 +84,7 @@ def test_delete_existing_key(tmp_path):
     assert lines[-1] == "name:tombstoned"
 
 
-# Delete a missing key: returns False, file and cache don't change.
+# Delete a missing key: returns False.
 def test_delete_missing_key(tmp_path):
     cache = {}
     db_path = tmp_path / "test_database.txt"
