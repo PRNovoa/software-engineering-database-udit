@@ -1,15 +1,15 @@
 # Dictionary should be initialized beforehand
 
-TOMBSTONE_VALUE = "tombstoned"
+from src.database import TOMBSTONE_VALUE
 
 def validate_entry(key, value, allow_tombstone=False):
     
     if not isinstance(key, str) or not isinstance(value, str):
         raise ValueError("Key and value must be strings.")
 
-    if not key or not value:
-        raise ValueError("Key and value cannot be empty.")
-
+    if not key:
+        raise ValueError("Key cannot be empty.")
+  
     try: 
         key.encode("utf-8")
         value.encode("utf-8")
@@ -33,7 +33,7 @@ def read_entry(key, cache):
 
 def update_entry(key, value, db, cache): 
     if entry_exists(key, cache):
-        create_entry(key, value, db, cache, allow_tombstone=False)
+        create_entry(key, value, db, cache)
         return True
     return False
 

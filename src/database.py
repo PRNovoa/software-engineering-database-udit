@@ -1,7 +1,6 @@
 import os
 
-
-from src.entries import TOMBSTONE_VALUE 
+TOMBSTONE_VALUE = "tombstoned"
 
 def open_db(db_path, mode="a+"):
     return open(db_path, mode, encoding="utf-8")
