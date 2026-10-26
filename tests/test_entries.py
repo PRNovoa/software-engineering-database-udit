@@ -1,3 +1,4 @@
+from src.database import open_db
 from src.entries import (
     create_entry,
     read_entry,
@@ -10,7 +11,7 @@ from src.entries import (
 def test_set(tmp_path):
     cache = {}
     db_path = tmp_path / "test_database.txt"
-    with open(db_path, "w", encoding="utf-8") as db:
+    with open_db(db_path) as db:
         create_entry("name", "pablo", db, cache)
 
     assert cache["name"] == "pablo"
@@ -23,7 +24,7 @@ def test_get():
 # Set an existing key again and verify that its value is updated.
 def test_set_existing_key(tmp_path):
     cache = {}
-    with open(tmp_path / "test_database.txt", "w", encoding="utf-8") as db:
+    with open_db(tmp_path / "test_database.txt") as db:
         create_entry("name", "pablo", db, cache)
         create_entry("name", "gonzalo", db, cache)
     assert read_entry("name", cache) == "gonzalo"
@@ -38,18 +39,18 @@ def test_get_missing_key():
 # Verify that storing different keys preserves their individual values.
 def test_different_keys(tmp_path):
     cache = {}
-    with open(tmp_path / "test_database.txt", "w", encoding="utf-8") as db:
+    with open_db(tmp_path / "test_database.txt") as db:
         create_entry("a", "1", db, cache)
         create_entry("b", "2", db, cache)
     assert read_entry("a", cache) == "1"
     assert read_entry("b", cache) == "2"
 
 
-# Update an existing key: returns True.
+# Update an existing key: returns True, cache has the new value, file gets a new line.
 def test_update_existing_key(tmp_path):
     cache = {}
     db_path = tmp_path / "test_database.txt"
-    with open(db_path, "w", encoding="utf-8") as db:
+    with open_db(db_path) as db:
         create_entry("name", "pablo", db, cache)
         assert update_entry("name", "gonzalo", db, cache) is True
 
@@ -57,11 +58,11 @@ def test_update_existing_key(tmp_path):
     assert db_path.read_text(encoding="utf-8") == "name:pablo\nname:gonzalo\n"
 
 
-# Update a missing key: returns False.
+# Update a missing key: returns False, file and cache don't change.
 def test_update_missing_key(tmp_path):
     cache = {}
     db_path = tmp_path / "test_database.txt"
-    with open(db_path, "w", encoding="utf-8") as db:
+    with open_db(db_path) as db:
         create_entry("name", "pablo", db, cache)
         assert update_entry("missing", "x", db, cache) is False
 
@@ -73,7 +74,7 @@ def test_update_missing_key(tmp_path):
 def test_delete_existing_key(tmp_path):
     cache = {}
     db_path = tmp_path / "test_database.txt"
-    with open(db_path, "w", encoding="utf-8") as db:
+    with open_db(db_path) as db:
         create_entry("name", "pablo", db, cache)
         assert delete_entry("name", db, cache) is True
 
@@ -87,7 +88,7 @@ def test_delete_existing_key(tmp_path):
 def test_delete_missing_key(tmp_path):
     cache = {}
     db_path = tmp_path / "test_database.txt"
-    with open(db_path, "w", encoding="utf-8") as db:
+    with open_db(db_path) as db:
         create_entry("name", "pablo", db, cache)
         assert delete_entry("missing", db, cache) is False
 
@@ -99,7 +100,7 @@ def test_delete_missing_key(tmp_path):
 def test_delete_twice(tmp_path):
     cache = {}
     db_path = tmp_path / "test_database.txt"
-    with open(db_path, "w", encoding="utf-8") as db:
+    with open_db(db_path) as db:
         create_entry("name", "pablo", db, cache)
         assert delete_entry("name", db, cache) is True
         assert delete_entry("name", db, cache) is False
