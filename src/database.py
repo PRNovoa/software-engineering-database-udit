@@ -38,6 +38,9 @@ def compact_db(db):
 
     db.seek(0)
     lines = db.readlines()
+    
+    if lines and not lines[-1].endswith("\n"):
+        lines.pop()
 
     with open_db(temp_path, "w") as db_temp:
 
