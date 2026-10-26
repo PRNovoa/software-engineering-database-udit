@@ -21,6 +21,9 @@ def test_get():
     cache = {"name": "pablo"}
     assert read_entry("name", cache) == "pablo"
 
+def test_get():
+    cache = {"name": "pablo"}
+    assert read_entry("name", cache) == "pablo"
 
 # Set an existing key again and verify that its value is updated.
 def test_set_existing_key(tmp_path):

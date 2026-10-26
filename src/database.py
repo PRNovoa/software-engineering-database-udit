@@ -1,5 +1,6 @@
 import os
 
+
 def open_db(db_path, mode="a+"):
     return open(db_path, mode, encoding="utf-8")
 
@@ -19,7 +20,12 @@ def start_db(db_path):
         db.close()
 
     db = open_db(db_path)
-    cache = create_cache(db)
+    try:
+        cache = create_cache(db)
+    except BaseException: 
+        db.close()
+        raise
+
     return db, cache
 
 def close_db(db):
