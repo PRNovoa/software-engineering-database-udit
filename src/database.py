@@ -3,8 +3,6 @@ import os
 TOMBSTONE_VALUE = "tombstoned"
 
 def open_db(db_path, mode="a+"):
-    if isinstance(db_path, int):
-        return os.fdopen(db_path, mode, encoding="utf-8")
     return open(db_path, mode, encoding="utf-8")
 
 def create_cache(db):
@@ -71,6 +69,7 @@ def compact_db(db):
 
     try:
         with open_db(temp_fd, "w") as db_temp:
+            temp_fd = None
 
             for line in reversed(lines):
                 key, value = line.rstrip("\n").split(":", 1)
@@ -88,5 +87,8 @@ def compact_db(db):
         os.replace(temp_path, db.name)
 
     finally:
+        if temp_fd is not None:
+            os.close(temp_fd)
+
         if os.path.exists(temp_path):
             os.unlink(temp_path)
