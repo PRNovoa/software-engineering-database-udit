@@ -108,11 +108,8 @@ def test_delete_twice(tmp_path):
     assert db_path.read_text(encoding="utf-8") == "name:pablo\nname:tombstoned\n"
 
 
-def test_entry_exists(tmp_path):
-    cache = {}
-    db_path = tmp_path / "test_database.txt"
-    with open(db_path, "w", encoding="utf-8") as db:
-        create_entry("name", "pablo", db, cache)
+def test_entry_exists(tmp_path):        
+    cache = {"name": "pablo"}    
 
     assert entry_exists("name", cache) is True
     assert entry_exists("missing", cache) is False
