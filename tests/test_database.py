@@ -1,7 +1,29 @@
 import os
 
-from src.database import open_db, compact_db, start_db, close_db
+from src.database import close_db, compact_db, open_db, start_db
 
+
+def test_open_db_accepts_path(tmp_path):
+    db_path = tmp_path / "test_database.txt"
+
+    with open_db(db_path, "w") as db:
+        db.write("name:pablo\n")
+
+    assert db_path.read_text(encoding="utf-8") == "name:pablo\n"
+
+
+def test_open_db_accepts_file_descriptor(tmp_path):
+    db_path = tmp_path / "test_database.txt"
+    file_descriptor = os.open(
+        db_path,
+        os.O_CREAT | os.O_WRONLY,
+        0o600,
+    )
+
+    with open_db(file_descriptor, "w") as db:
+        db.write("name:pablo\n")
+
+    assert db_path.read_text(encoding="utf-8") == "name:pablo\n"
 
 # Write raw content to the db file, compact it and return the path.
 def compact(tmp_path, content):
@@ -11,7 +33,7 @@ def compact(tmp_path, content):
     try:
         compact_db(db)
     finally:
-        db.close()
+        close_db(db)
     return db_path
 
 
@@ -45,10 +67,16 @@ def test_compact_empty_file(tmp_path):
     assert db_path.read_text(encoding="utf-8") == ""
 
 
-# The .tmp file does not stay behind after compacting.
+# An unterminated final record is ignored during compaction.
+def test_compact_ignores_incomplete_final_record(tmp_path):
+    db_path = compact(tmp_path, "name:pablo\nname:gonzalo")
+    assert db_path.read_text(encoding="utf-8") == "name:pablo\n"
+
+
+# The randomized temporary file does not stay behind after compacting.
 def test_compact_removes_tmp_file(tmp_path):
     db_path = compact(tmp_path, "name:pablo\nname:gonzalo\n")
-    assert not os.path.exists(str(db_path) + ".tmp")
+    assert list(tmp_path.glob(f"{db_path.name}.*.tmp")) == []
 
 
 # start_db() loads a cache that matches the compacted file.

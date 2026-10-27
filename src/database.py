@@ -46,6 +46,12 @@ def compact_db(db):
     temp_path = None
     temp_fd = None
 
+    db.seek(0)
+    lines = db.readlines()
+
+    if lines and not lines[-1].endswith("\n"):
+        lines.pop()
+
     for i in range(10):
             attempt = f"{db.name}.{os.urandom(8).hex()}.tmp"
             try:
@@ -64,11 +70,8 @@ def compact_db(db):
         raise FileExistsError
 
     try:
-        db.seek(0)
-        lines = db.readlines()
-
         with open_db(temp_fd, "w") as db_temp:
-            
+
             for line in reversed(lines):
                 key, value = line.rstrip("\n").split(":", 1)
                 if key not in temp_cache:
@@ -81,6 +84,7 @@ def compact_db(db):
             db_temp.flush()
             os.fsync(db_temp.fileno())
 
+        db.close()
         os.replace(temp_path, db.name)
 
     finally:
