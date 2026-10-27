@@ -43,13 +43,25 @@ def close_db(db):
 
 def compact_db(db):
     temp_cache = {}
-    temp_path = f"{db.name}.{os.urandom(8).hex()}.tmp"
+    temp_path = None
+    temp_fd = None
 
-    temp_fd = os.open(
-        temp_path,
-        os.O_CREAT | os.O_EXCL | os.O_WRONLY,
-        0o600
-        )
+    for i in range(10):
+            attempt = f"{db.name}.{os.urandom(8).hex()}.tmp"
+            try:
+                temp_fd = os.open(
+                    attempt,
+                    os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+                    0o600,
+                )
+                temp_path = attempt
+                break
+
+            except FileExistsError:
+                pass
+
+    if temp_fd is None:
+        raise FileExistsError
 
     try:
         db.seek(0)
