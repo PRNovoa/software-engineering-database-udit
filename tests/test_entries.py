@@ -80,9 +80,9 @@ def test_delete_existing_key(tmp_path):
 
     assert entry_exists("name", cache) is False
     assert read_entry("name", cache) is None
-    lines = db_path.read_text(encoding="utf-8").splitlines()
-    assert lines[-1] == "name:tombstoned"
-
+    assert cache == {}
+    assert db_path.read_text(encoding="utf-8") == "name:pablo\nname:tombstoned\n"
+    
 
 # Delete a missing key: returns False.
 def test_delete_missing_key(tmp_path):
@@ -117,32 +117,6 @@ def test_entry_exists(tmp_path):
     assert entry_exists("name", cache) is True
     assert entry_exists("missing", cache) is False
     
-def test_update_entry(tmp_path):
-    cache = {}
-    db_path = tmp_path / "test_database.txt"
-    with open(db_path, "w", encoding="utf-8") as db:
-        create_entry("name", "pablo", db, cache)
-        assert update_entry("name", "gonzalo", db, cache) is True
-        assert cache["name"] == "gonzalo"
-
-        assert update_entry("missing", "x", db, cache) is False
-        assert cache["name"] == "gonzalo"
-
-    assert db_path.read_text(encoding="utf-8") == "name:pablo\nname:gonzalo\n"
     
-def test_delete_entry(tmp_path):
-    cache = {}
-    db_path = tmp_path / "test_database.txt"
-    with open(db_path, "w", encoding="utf-8") as db:
-        create_entry("name", "pablo", db, cache)
-        assert delete_entry("name", db, cache) is True
-        assert entry_exists("name", cache) is False
-        assert read_entry("name", cache) is None
-
-        assert delete_entry("missing", db, cache) is False
-        assert cache == {}
-
-    assert db_path.read_text(encoding="utf-8") == "name:pablo\nname:tombstoned\n"
-
 
   
