@@ -69,6 +69,14 @@ Every open issue gets exactly one priority label, following the MoSCoW method:
 
 Add the label when you open the issue. If you think a priority is wrong, say so in the issue before you change it.
 
+## Testing
+
+New features and bug fixes must include the relevant tests in the same PR. Update existing tests whenever their expected behaviour changes.
+
+For bug fixes, add a regression test that fails with the original bug and passes with the fix. Tests are part of the change and should not be left for a separate issue afterwards.
+
+Documentation-only changes do not need new tests
+
 ## Pull requests
 
 Open a PR with a short description of what changed, why, and how you tested it. Assign yourself to the PR when you open it.

@@ -1,5 +1,6 @@
 import os
 
+TOMBSTONE_VALUE = "tombstoned"
 
 def open_db(db_path, mode="a+"):
     return open(db_path, mode, encoding="utf-8")
@@ -44,6 +45,9 @@ def compact_db(db):
 
     db.seek(0)
     lines = db.readlines()
+    
+    if lines and not lines[-1].endswith("\n"):
+        lines.pop()
 
     with open_db(temp_path, "w") as db_temp:
 
@@ -53,7 +57,7 @@ def compact_db(db):
                 temp_cache[key] = value
 
         for key, value in reversed(temp_cache.items()):
-            if value != "tombstoned":
+            if value != TOMBSTONE_VALUE:
                 db_temp.write(f"{key}:{value}\n")
 
         db_temp.flush()
