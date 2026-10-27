@@ -77,6 +77,8 @@ name:bob
 </td></tr>
 </table>
 
+Each record ends with a newline (`\n`). During compaction, an unfinished final record is ignored so the last complete values are preserved. If compaction fails, the original database stays unchanged (#68).
+
 > [!TIP]
 > This runs when the database starts (#31), not after every write, so we don't have to search the whole file each time.
 
