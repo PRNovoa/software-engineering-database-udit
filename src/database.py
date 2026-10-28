@@ -41,7 +41,8 @@ def close_db(db):
 
 def compact_db(db):
     temp_cache = {}
-    temp_path = db.name + ".tmp"
+    temp_path = None
+    temp_fd = None
 
     db.seek(0)
     lines = db.readlines()
@@ -49,17 +50,48 @@ def compact_db(db):
     if lines and not lines[-1].endswith("\n"):
         lines.pop()
 
-    with open_db(temp_path, "w") as db_temp:
+    if lines and not lines[-1].endswith("\n"):
+        lines.pop()
 
-        for line in reversed(lines):
-            key, value = line.rstrip("\n").split(":", 1,)
-            if key not in temp_cache:
-                temp_cache[key] = value
+    for i in range(10):
+            attempt = f"{db.name}.{os.urandom(8).hex()}.tmp"
+            try:
+                temp_fd = os.open(
+                    attempt,
+                    os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+                    0o600,
+                )
+                temp_path = attempt
+                break
 
-        for key, value in reversed(temp_cache.items()):
-            if value != TOMBSTONE_VALUE:
-                db_temp.write(f"{key}:{value}\n")
+            except FileExistsError:
+                pass
 
-        db_temp.flush()
-        os.fsync(db_temp.fileno())
-    os.replace(temp_path, db.name)
+    if temp_fd is None:
+        raise FileExistsError
+
+    try:
+        with open_db(temp_fd, "w") as db_temp:
+            temp_fd = None
+
+            for line in reversed(lines):
+                key, value = line.rstrip("\n").split(":", 1)
+                if key not in temp_cache:
+                    temp_cache[key] = value
+
+            for key, value in reversed(temp_cache.items()):
+                if value != TOMBSTONE_VALUE:
+                    db_temp.write(f"{key}:{value}\n")
+
+            db_temp.flush()
+            os.fsync(db_temp.fileno())
+
+        db.close()
+        os.replace(temp_path, db.name)
+
+    finally:
+        if temp_fd is not None:
+            os.close(temp_fd)
+
+        if os.path.exists(temp_path):
+            os.unlink(temp_path)
