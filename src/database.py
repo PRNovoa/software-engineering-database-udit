@@ -2,10 +2,12 @@ import os
 
 TOMBSTONE_VALUE = "tombstoned"
 
-def open_db(db_path, mode="a+"):
+def open_db(db_path: str, mode="a+"):
+    """ Open the database file with the specified mode. """
     return open(db_path, mode, encoding="utf-8")
 
-def create_cache(db):
+def create_cache(db) -> dict[str, str]:
+    """ Create a cache from the database file. """
     cache = {}
     db.seek(0)
     for line in db:
@@ -13,7 +15,8 @@ def create_cache(db):
         cache[k] = v
     return cache
 
-def start_db(db_path):
+def start_db(db_path: str) -> tuple:
+    """ Start the database by opening the file and creating a cache. Returns a tuple of (db, cache). """
     db = open_db(db_path)
     try:
         compact_db(db)
@@ -29,7 +32,8 @@ def start_db(db_path):
 
     return db, cache
 
-def close_db(db):
+def close_db(db) -> None:
+    """ Close the database file. """
     if db.closed:
         return
     
@@ -39,7 +43,8 @@ def close_db(db):
     finally: 
         db.close()
 
-def compact_db(db):
+def compact_db(db) -> None:
+    """ Compact the database file by removing tombstoned entries. """
     temp_cache = {}
     temp_path = db.name + ".tmp"
 
