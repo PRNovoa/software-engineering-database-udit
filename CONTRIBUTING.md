@@ -81,12 +81,16 @@ Documentation-only changes do not need new tests
 
 Open a PR with a short description of what changed, why, and how you tested it. Assign yourself to the PR when you open it.
 
+PR descriptions follow the template in .github/pull_request_template.md, which GitHub fills in automatically.`Summary` (with the issue reference),  `Testing` and `Changes` are required; `Notes` are optional.
+
 Every PR description must reference its issue using `#` followed by the actual issue number. For example:
 
 | Write | When |
 |---|---|
 | `Closes #31` | The PR fully resolves the issue. |
 | `Related to #31` | The PR only covers part of the work or is related to the issue. |
+
+
 
 > [!WARNING]
 > An issue reference only in the title, branch name, commit message, or comments does not satisfy this requirement.
