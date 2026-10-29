@@ -25,14 +25,15 @@ flowchart LR
 - Implement the database logic ourselves and use Python's standard library where possible. Avoid external libraries unless they are necessary, and explain why in the PR.
 - Write commits as `<type>: <short description>`. Use `feat`, `fix`, `docs`, `test`, or `chore`, for example `docs: add contributing guide`.
 - Keep local environments, generated database files, and credentials out of commits.
+- When writing functions specify the types of the parameters that they recieve, as well as their returns.
 
-| Type | Use it for |
-|---|---|
-| `feat` | New functionality |
-| `fix` | Fixing something that doesn't work as it should |
-| `docs` | Documentation only |
-| `test` | Adding or changing tests |
-| `chore` | Setup, workflow and other maintenance |
+| Type    | Use it for                                      |
+| ------- | ----------------------------------------------- |
+| `feat`  | New functionality                               |
+| `fix`   | Fixing something that doesn't work as it should |
+| `docs`  | Documentation only                              |
+| `test`  | Adding or changing tests                        |
+| `chore` | Setup, workflow and other maintenance           |
 
 ## Issues and labels
 
@@ -61,11 +62,11 @@ If it's a decision to make and not a task, open a Discussion instead (optional),
 
 Every open issue gets exactly one priority label, following the MoSCoW method:
 
-| Label | Meaning | When |
-|---|---|---|
-| `Must` | Required for the project to work. | Do these first. |
-| `Should` | Important, but the project still works without it. | Do these after the `Must` issues. |
-| `Could` | Nice to have. | Do these only once the `Must` and `Should` issues are covered. |
+| Label    | Meaning                                            | When                                                           |
+| -------- | -------------------------------------------------- | -------------------------------------------------------------- |
+| `Must`   | Required for the project to work.                  | Do these first.                                                |
+| `Should` | Important, but the project still works without it. | Do these after the `Must` issues.                              |
+| `Could`  | Nice to have.                                      | Do these only once the `Must` and `Should` issues are covered. |
 
 Add the label when you open the issue. If you think a priority is wrong, say so in the issue before you change it.
 
@@ -85,9 +86,9 @@ PR descriptions follow the template in .github/pull_request_template.md, which G
 
 Every PR description must reference its issue using `#` followed by the actual issue number. For example:
 
-| Write | When |
-|---|---|
-| `Closes #31` | The PR fully resolves the issue. |
+| Write            | When                                                            |
+| ---------------- | --------------------------------------------------------------- |
+| `Closes #31`     | The PR fully resolves the issue.                                |
 | `Related to #31` | The PR only covers part of the work or is related to the issue. |
 
 
