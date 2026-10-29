@@ -80,9 +80,9 @@ def test_delete_existing_key(tmp_path):
 
     assert entry_exists("name", cache) is False
     assert read_entry("name", cache) is None
-    lines = db_path.read_text(encoding="utf-8").splitlines()
-    assert lines[-1] == "name:tombstoned"
-
+    assert cache == {}
+    assert db_path.read_text(encoding="utf-8") == "name:pablo\nname:tombstoned\n"
+    
 
 # Delete a missing key: returns False.
 def test_delete_missing_key(tmp_path):
@@ -106,3 +106,14 @@ def test_delete_twice(tmp_path):
         assert delete_entry("name", db, cache) is False
 
     assert db_path.read_text(encoding="utf-8") == "name:pablo\nname:tombstoned\n"
+
+
+def test_entry_exists(tmp_path):        
+    cache = {"name": "pablo"}    
+
+    assert entry_exists("name", cache) is True
+    assert entry_exists("missing", cache) is False
+    
+    
+
+  
