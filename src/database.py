@@ -2,7 +2,7 @@ import os
 
 TOMBSTONE_VALUE = "tombstoned"
 
-def open_db(db_path: str, mode="a+"):
+def open_db(db_path: str | os.PathLike[str] | int, mode="a+"):
     """ Open the database file with the specified mode. """
     return open(db_path, mode, encoding="utf-8")
 
@@ -15,7 +15,7 @@ def create_cache(db) -> dict[str, str]:
         cache[k] = v
     return cache
 
-def start_db(db_path: str) -> tuple:
+def start_db(db_path: str | os.PathLike[str] | int) -> tuple:
     """ Start the database by opening the file and creating a cache. Returns a tuple of (db, cache). """
     db = open_db(db_path)
     try:
