@@ -46,7 +46,7 @@ def close_db(db) -> None:
 def compact_db(db) -> None:
     """ Compact the database file by removing tombstoned entries. """
     temp_cache = {}
-    temp_path = None
+    temp_path: str = ""
     temp_fd = None
 
     db.seek(0)
