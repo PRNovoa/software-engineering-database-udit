@@ -1,5 +1,7 @@
 import os
 
+from src.exceptions import CompactionError
+
 TOMBSTONE_VALUE = "tombstoned"
 
 def open_db(db_path: str | os.PathLike[str] | int, mode="a+"):
@@ -73,7 +75,7 @@ def compact_db(db) -> None:
                 pass
 
     if temp_fd is None:
-        raise FileExistsError
+        raise CompactionError("Failed to create a temporary file for compaction after 10 attempts.")
 
     try:
         with open_db(temp_fd, "w") as db_temp:
