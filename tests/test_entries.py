@@ -9,6 +9,7 @@ from src.entries import (
     delete_entry,
     entry_exists,
 )
+import pytest
 
 
 def test_set(tmp_path):
@@ -59,7 +60,18 @@ def test_update_existing_key(tmp_path):
 
     assert cache["name"] == "gonzalo"
     assert db_path.read_text(encoding="utf-8") == "name:pablo\nname:gonzalo\n"
+    
+def  test_update_write_fails_keeps_cache():
+    cache = {"name": "pablo", "city": "Madrid"}
+    
+    class FailingDB:
+        def write(self, data):
+            raise OSError("Simulated write failure")
 
+    with pytest.raises(OSError):
+        update_entry("name", "gonzalo", FailingDB(), cache)
+        
+    assert cache == {"name": "pablo", "city": "Madrid"}    
 
 # Update a missing key: returns False.
 def test_update_missing_key(tmp_path):
