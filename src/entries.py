@@ -1,6 +1,6 @@
 # Dictionary should be initialized beforehand
 
-from src.database import TOMBSTONE_VALUE
+from src.database import TOMBSTONE_VALUE, db_sync
 
 
 def validate_entry(key: str, value: str, allow_tombstone=False) -> None:
@@ -28,7 +28,9 @@ def create_entry(key: str, value: str, db, cache: dict[str, str], allow_tombston
     """ Create an entry in the database. """
     validate_entry(key, value, allow_tombstone)
     db.write(f"{key}:{value}\n")
+    db_sync(db)
     cache[key] = value
+    
 
 def read_entry(key:str , cache: dict[str, str]) -> str | None:
     """ Read an entry from the cache. """
