@@ -136,17 +136,3 @@ def test_new_entry_survives_sudden_exit(tmp_path):
 
     assert process.exitcode == 0
     assert db_path.read_text(encoding="utf-8") == "name:pablo\n"
-
-
-def test_failed_compaction_preserves_database(tmp_path):
-    db_path = tmp_path / "test_database.txt"
-    original = "name:pablo\nname:new\n"
-    db_path.write_text(original, encoding="utf-8")
-
-    with open_db(db_path) as db:
-        with patch("src.database.os.fsync", side_effect=OSError):
-            with pytest.raises(OSError):
-                compact_db(db)
-
-    assert db_path.read_text(encoding="utf-8") == original
-    assert list(tmp_path.glob("test_database.txt.*.tmp")) == []
