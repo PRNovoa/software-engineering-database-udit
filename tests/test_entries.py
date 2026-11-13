@@ -1,10 +1,16 @@
-from src.database import open_db
+import os
+from multiprocessing import Process
+from unittest.mock import patch
+
+import pytest
+
+from src.database import compact_db, open_db, start_db
 from src.entries import (
     create_entry,
-    read_entry,
-    update_entry,
     delete_entry,
     entry_exists,
+    read_entry,
+    update_entry,
 )
 
 
@@ -113,7 +119,20 @@ def test_entry_exists(tmp_path):
 
     assert entry_exists("name", cache) is True
     assert entry_exists("missing", cache) is False
-    
-    
 
-  
+def write_and_exit(db_path):
+    """ Write an entry to the database and exit the process. """
+    db, cache = start_db(db_path)
+    create_entry("name", "pablo", db, cache)
+    os._exit(0)
+
+def test_new_entry_survives_sudden_exit(tmp_path):
+    """ Test that a new entry survives a sudden exit of the process. """
+    db_path = tmp_path / "test_database.txt"
+
+    process = Process(target=write_and_exit, args=(db_path,))
+    process.start()
+    process.join()
+
+    assert process.exitcode == 0
+    assert db_path.read_text(encoding="utf-8") == "name:pablo\n"

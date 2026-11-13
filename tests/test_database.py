@@ -1,6 +1,9 @@
 import os
+from unittest.mock import patch
 
-from src.database import close_db, compact_db, open_db, start_db
+import pytest
+
+from src.database import close_db, compact_db, db_sync, open_db, start_db
 
 
 def test_open_db_accepts_path(tmp_path):
@@ -88,3 +91,29 @@ def test_start_db_cache_matches_file(tmp_path):
     lines = db_path.read_text(encoding="utf-8").splitlines()
     assert cache == dict(line.split(":", 1) for line in lines)
     assert cache == {"b": "2", "a": "3"}
+
+
+def test_db_sync_flushes_and_syncs(tmp_path):
+    db_path = tmp_path / "test_database.txt"
+
+    with open_db(db_path) as db:
+        db.write("name:pablo\n")
+        with patch("src.database.os.fsync", wraps=os.fsync) as sync:
+            db_sync(db)
+
+            sync.assert_called_once_with(db.fileno())
+            assert db_path.read_text(encoding="utf-8") == "name:pablo\n"
+
+
+def test_failed_compaction_preserves_database(tmp_path):
+    db_path = tmp_path / "test_database.txt"
+    original = "name:pablo\nname:new\nage:30\nage:tombstoned\n"
+    db_path.write_text(original, encoding="utf-8")
+
+    with open_db(db_path) as db:
+        with patch("src.database.os.fsync", side_effect=OSError("sync failed")):
+            with pytest.raises(OSError, match="sync failed"):
+                compact_db(db)
+
+    assert db_path.read_text(encoding="utf-8") == original
+    assert list(tmp_path.glob("test_database.txt.*.tmp")) == []
