@@ -40,40 +40,19 @@ def compact(tmp_path, content):
     return db_path
 
 
-# A key written several times keeps only its last value.
-def test_compact_keeps_last_value(tmp_path):
-    db_path = compact(tmp_path, "name:pablo\nname:gonzalo\nname:ivan\nname:carlos\n")
-    assert db_path.read_text(encoding="utf-8") == "name:carlos\n"
+COMPACTION_TESTS = [ 
+    pytest.param("name:pablo\nname:gonzalo\nname:ivan\nname:carlos\n", "name:carlos\n", id="keeps last value"),
+    pytest.param("name:pablo\nname:tombstoned\n", "", id="removes deleted key"),
+    pytest.param("name:pablo\nname:tombstoned\nname:gonzalo\n", "name:gonzalo\n", id="keeps recreated key"),
+    pytest.param("a:1\nb:2\nc:3\nb:tombstoned\n", "a:1\nc:3\n", id="keeps untouched keys in order"),
+    pytest.param("", "", id="empty file"),
+    pytest.param("name:pablo\nname:gonzalo", "name:pablo\n", id="ignores incomplete final record"),
+]
 
-
-# A key whose last value is tombstoned disappears from the file.
-def test_compact_removes_deleted_key(tmp_path):
-    db_path = compact(tmp_path, "name:pablo\nname:tombstoned\n")
-    assert db_path.read_text(encoding="utf-8") == ""
-
-
-# A key that is deleted and then created again stays, with its new value.
-def test_compact_keeps_recreated_key(tmp_path):
-    db_path = compact(tmp_path, "name:pablo\nname:tombstoned\nname:gonzalo\n")
-    assert db_path.read_text(encoding="utf-8") == "name:gonzalo\n"
-
-
-# Keys that were never touched stay the same and in the same order.
-def test_compact_keeps_untouched_keys_in_order(tmp_path):
-    db_path = compact(tmp_path, "a:1\nb:2\nc:3\nb:tombstoned\n")
-    assert db_path.read_text(encoding="utf-8") == "a:1\nc:3\n"
-
-
-# An empty file stays empty and does not crash.
-def test_compact_empty_file(tmp_path):
-    db_path = compact(tmp_path, "")
-    assert db_path.read_text(encoding="utf-8") == ""
-
-
-# An unterminated final record is ignored during compaction.
-def test_compact_ignores_incomplete_final_record(tmp_path):
-    db_path = compact(tmp_path, "name:pablo\nname:gonzalo")
-    assert db_path.read_text(encoding="utf-8") == "name:pablo\n"
+@pytest.mark.parametrize("content,expected", COMPACTION_TESTS)
+def test_compact(tmp_path, content, expected):
+    db_path = compact(tmp_path, content)
+    assert db_path.read_text(encoding="utf-8") == expected
 
 
 # The randomized temporary file does not stay behind after compacting.
