@@ -1,6 +1,9 @@
 import os
 
+import pytest
+
 from src.database import close_db, compact_db, open_db, start_db
+from src.exceptions import CompactionError, DatabaseError
 
 
 def test_open_db_accepts_path(tmp_path):
@@ -88,3 +91,35 @@ def test_start_db_cache_matches_file(tmp_path):
     lines = db_path.read_text(encoding="utf-8").splitlines()
     assert cache == dict(line.split(":", 1) for line in lines)
     assert cache == {"b": "2", "a": "3"}
+
+
+# If all 10 temporary file names collide, compaction raises CompactionError
+# and the original database file is left unchanged.
+def test_compact_raises_when_all_tmp_names_collide(tmp_path, monkeypatch):
+    content = "name:pablo\nname:gonzalo\nother:tombstoned\n"
+    db_path = tmp_path / "test_database.txt"
+    db_path.write_text(content, encoding="utf-8")
+
+    fixed_bytes = b"\x00" * 8
+    colliding_tmp = tmp_path / f"{db_path.name}.{fixed_bytes.hex()}.tmp"
+    colliding_tmp.write_text("", encoding="utf-8")
+
+    attempts = []
+
+    def fake_urandom(n):
+        attempts.append(n)
+        return fixed_bytes
+
+    monkeypatch.setattr(os, "urandom", fake_urandom)
+
+    db = open_db(str(db_path))
+    try:
+        with pytest.raises(CompactionError) as exc_info:
+            compact_db(db)
+    finally:
+        close_db(db)
+
+    assert isinstance(exc_info.value, DatabaseError)
+    assert len(attempts) == 10
+    assert db_path.read_text(encoding="utf-8") == content
+    assert colliding_tmp.exists()
