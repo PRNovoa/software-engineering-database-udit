@@ -126,7 +126,7 @@ def test_compact_raises_when_all_tmp_names_collide(tmp_path, monkeypatch):
     assert colliding_tmp.exists()
     
 
-# close_db() hace flush, luego fsync y por último cierra el archivo.   
+# close_db() flushes, then fsyncs and finally closes the file.
 def test_close_db_flushes_then_syncs_then_closes(monkeypatch):
     db = Mock(closed=False)
     monkeypatch.setattr(os, "fsync", db.fsync)
@@ -140,7 +140,7 @@ def test_close_db_flushes_then_syncs_then_closes(monkeypatch):
         call.close(),
     ]
 
-# Si flush() falla, el error llega al que llama y el archivo se cierra igual.
+# If flush() fails, the error reaches the caller and the file is still closed.
 def test_close_db_closes_when_flush_fails(monkeypatch):
     db = Mock(closed=False)
     db.flush.side_effect = OSError("flush failed")
@@ -152,7 +152,7 @@ def test_close_db_closes_when_flush_fails(monkeypatch):
     db.fsync.assert_not_called()
     db.close.assert_called_once()
     
-# Si os.fsync() falla, el error llega al que llama y el archivo se cierra igual.    
+# If os.fsync() fails, the error reaches the caller and the file is still closed.
 def test_close_db_closes_when_fsync_fails(monkeypatch):
     db = Mock(closed=False)
     db.fsync.side_effect = OSError("fsync failed")
