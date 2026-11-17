@@ -15,6 +15,26 @@ def create_cache(db) -> dict[str, str]:
         cache[k] = v
     return cache
 
+def clone_database(path: str) -> str:
+    """ Create a backup of the database file. Returns the path to the backup file. """
+    backup_path = f"{path}.bak"
+    try:
+        with open_db(path, "r") as source, open_db(backup_path, "w") as backup:
+            for line in source:
+                backup.write(line)
+            backup.flush()
+            os.fsync(backup.fileno())
+    except BaseException:
+        delete_database(backup_path)
+        raise
+    return backup_path
+def delete_database(path: str) -> None:
+    """ Delete the database file. """
+    try:
+        os.unlink(path)
+    except FileNotFoundError:
+        pass
+
 def start_db(db_path: str | os.PathLike[str] | int) -> tuple:
     """ Start the database by opening the file and creating a cache. Returns a tuple of (db, cache). """
     db = open_db(db_path)

@@ -1,6 +1,6 @@
 # Dictionary should be initialized beforehand
 
-from src.database import TOMBSTONE_VALUE
+from src.database import TOMBSTONE_VALUE, clone_database, delete_database
 
 
 def validate_entry(key: str, value: str, allow_tombstone=False) -> None:
@@ -25,11 +25,17 @@ def validate_entry(key: str, value: str, allow_tombstone=False) -> None:
         raise ValueError("Tombstoned values are not allowed.")
 
 def create_entry(key: str, value: str, db, cache: dict[str, str], allow_tombstone=False) -> None:
-    """ Create an entry in the database. """
+    """ Create an entry in the database, backing it up before writing. """
     validate_entry(key, value, allow_tombstone)
-    db.write(f"{key}:{value}\n")
-    cache[key] = value
-
+    db.flush()
+    backup_path = clone_database(db.name)
+    try:
+        db.write(f"{key}:{value}\n")
+        db.flush()
+        cache[key] = value
+    finally:
+        delete_database(backup_path)
+        
 def read_entry(key:str , cache: dict[str, str]) -> str | None:
     """ Read an entry from the cache. """
     return cache.get(key)
