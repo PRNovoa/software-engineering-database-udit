@@ -1,15 +1,19 @@
+import os
+from multiprocessing import Process
+from unittest.mock import patch
+
 import pytest
 
-from src.database import open_db
+from src.database import compact_db, open_db, start_db
 from src.exceptions import DatabaseError, InvalidEntryError
+from src.database import open_db
 from src.entries import (
     create_entry,
-    read_entry,
-    update_entry,
     delete_entry,
     entry_exists,
+    read_entry,
+    update_entry,
 )
-import pytest
 
 
 def test_set(tmp_path):
@@ -60,18 +64,18 @@ def test_update_existing_key(tmp_path):
 
     assert cache["name"] == "gonzalo"
     assert db_path.read_text(encoding="utf-8") == "name:pablo\nname:gonzalo\n"
-    
+
 def  test_update_write_fails_keeps_cache():
     cache = {"name": "pablo", "city": "Madrid"}
-    
+
     class FailingDB:
         def write(self, data):
             raise OSError("Simulated write failure")
 
     with pytest.raises(OSError):
         update_entry("name", "gonzalo", FailingDB(), cache)
-        
-    assert cache == {"name": "pablo", "city": "Madrid"}    
+
+    assert cache == {"name": "pablo", "city": "Madrid"}
 
 # Update a missing key: returns False.
 def test_update_missing_key(tmp_path):
@@ -128,6 +132,23 @@ def test_entry_exists(tmp_path):
 
     assert entry_exists("name", cache) is True
     assert entry_exists("missing", cache) is False
+
+def write_and_exit(db_path):
+    """ Write an entry to the database and exit the process. """
+    db, cache = start_db(db_path)
+    create_entry("name", "pablo", db, cache)
+    os._exit(0)
+
+def test_new_entry_survives_sudden_exit(tmp_path):
+    """ Test that a new entry survives a sudden exit of the process. """
+    db_path = tmp_path / "test_database.txt"
+
+    process = Process(target=write_and_exit, args=(db_path,))
+    process.start()
+    process.join()
+
+    assert process.exitcode == 0
+    assert db_path.read_text(encoding="utf-8") == "name:pablo\n"
 
 INVALID_ENTRIES = [
     pytest.param(1, "value", id="non-string key"),
