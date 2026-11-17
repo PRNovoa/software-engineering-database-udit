@@ -40,8 +40,7 @@ def close_db(db) -> None:
         return
     
     try:
-        db.flush()
-        os.fsync(db.fileno())
+        db_sync(db)
     finally: 
         db.close()
 
@@ -90,8 +89,7 @@ def compact_db(db) -> None:
                 if value != TOMBSTONE_VALUE:
                     db_temp.write(f"{key}:{value}\n")
 
-            db_temp.flush()
-            os.fsync(db_temp.fileno())
+            db_sync(db_temp)
 
         db.close()
         os.replace(temp_path, db.name)
@@ -102,3 +100,8 @@ def compact_db(db) -> None:
 
         if os.path.exists(temp_path):
             os.unlink(temp_path)
+
+def db_sync(db) -> None:
+    """ Flush and sync the database file. """
+    db.flush()
+    os.fsync(db.fileno())
