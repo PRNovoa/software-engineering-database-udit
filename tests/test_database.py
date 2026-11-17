@@ -32,7 +32,7 @@ def test_open_db_accepts_file_descriptor(tmp_path):
 
 # Write raw content to the db file, compact it and return the path.
 def compact(tmp_path, content):
-    db_path = tmp_path / "test_database.txt"
+    db_path = tmp_path / "test_database.tmp"
     db_path.write_text(content, encoding="utf-8")
     db = open_db(str(db_path))
     try:
@@ -87,7 +87,7 @@ def test_db_sync_flushes_and_syncs(tmp_path):
 
 
 def test_failed_compaction_preserves_database(tmp_path):
-    db_path = tmp_path / "test_database.txt"
+    db_path = tmp_path / "test_database.tmp"
     original = "name:pablo\nname:new\nage:30\nage:tombstoned\n"
     db_path.write_text(original, encoding="utf-8")
 
@@ -97,13 +97,13 @@ def test_failed_compaction_preserves_database(tmp_path):
                 compact_db(db)
 
     assert db_path.read_text(encoding="utf-8") == original
-    assert list(tmp_path.glob("test_database.txt.*.tmp")) == []
+    assert list(tmp_path.glob("test_database.tmp.*.tmp")) == []
 
 # If all 10 temporary file names collide, compaction raises CompactionError
 # and the original database file is left unchanged.
 def test_compact_raises_when_all_tmp_names_collide(tmp_path, monkeypatch):
     content = "name:pablo\nname:gonzalo\nother:tombstoned\n"
-    db_path = tmp_path / "test_database.txt"
+    db_path = tmp_path / "test_database.tmp"
     db_path.write_text(content, encoding="utf-8")
 
     fixed_bytes = b"\x00" * 8
