@@ -4,6 +4,7 @@ import pytest
 
 from src.database import close_db, compact_db, open_db, start_db
 from src.exceptions import CompactionError, DatabaseError
+from unittest.mock import Mock, call
 
 
 def test_open_db_accepts_path(tmp_path):
@@ -123,3 +124,41 @@ def test_compact_raises_when_all_tmp_names_collide(tmp_path, monkeypatch):
     assert len(attempts) == 10
     assert db_path.read_text(encoding="utf-8") == content
     assert colliding_tmp.exists()
+    
+
+# close_db() flushes, then fsyncs and finally closes the file.
+def test_close_db_flushes_then_syncs_then_closes(monkeypatch):
+    db = Mock(closed=False)
+    monkeypatch.setattr(os, "fsync", db.fsync)
+
+    close_db(db)
+
+    assert db.mock_calls == [
+        call.flush(),
+        call.fileno(),
+        call.fsync(db.fileno.return_value),
+        call.close(),
+    ]
+
+# If flush() fails, the error reaches the caller and the file is still closed.
+def test_close_db_closes_when_flush_fails(monkeypatch):
+    db = Mock(closed=False)
+    db.flush.side_effect = OSError("flush failed")
+    monkeypatch.setattr(os, "fsync", db.fsync)
+
+    with pytest.raises(OSError, match="flush failed"):
+        close_db(db)
+
+    db.fsync.assert_not_called()
+    db.close.assert_called_once()
+    
+# If os.fsync() fails, the error reaches the caller and the file is still closed.
+def test_close_db_closes_when_fsync_fails(monkeypatch):
+    db = Mock(closed=False)
+    db.fsync.side_effect = OSError("fsync failed")
+    monkeypatch.setattr(os, "fsync", db.fsync)
+
+    with pytest.raises(OSError, match="fsync failed"):
+        close_db(db)
+
+    db.close.assert_called_once()    
