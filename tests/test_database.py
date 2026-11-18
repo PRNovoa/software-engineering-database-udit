@@ -32,7 +32,7 @@ def test_open_db_accepts_file_descriptor(tmp_path):
 
 # Write raw content to the db file, compact it and return the path.
 def compact(tmp_path, content):
-    db_path = tmp_path / "test_database.txt"
+    db_path = tmp_path / "test_database.tmp"
     db_path.write_text(content, encoding="utf-8")
     db = open_db(str(db_path))
     try:
@@ -42,40 +42,19 @@ def compact(tmp_path, content):
     return db_path
 
 
-# A key written several times keeps only its last value.
-def test_compact_keeps_last_value(tmp_path):
-    db_path = compact(tmp_path, "name:pablo\nname:gonzalo\nname:ivan\nname:carlos\n")
-    assert db_path.read_text(encoding="utf-8") == "name:carlos\n"
+COMPACTION_TESTS = [ 
+    pytest.param("name:pablo\nname:gonzalo\nname:ivan\nname:carlos\n", "name:carlos\n", id="keeps last value"),
+    pytest.param("name:pablo\nname:tombstoned\n", "", id="removes deleted key"),
+    pytest.param("name:pablo\nname:tombstoned\nname:gonzalo\n", "name:gonzalo\n", id="keeps recreated key"),
+    pytest.param("a:1\nb:2\nc:3\nb:tombstoned\n", "a:1\nc:3\n", id="keeps untouched keys in order"),
+    pytest.param("", "", id="empty file"),
+    pytest.param("name:pablo\nname:gonzalo", "name:pablo\n", id="ignores incomplete final record"),
+]
 
-
-# A key whose last value is tombstoned disappears from the file.
-def test_compact_removes_deleted_key(tmp_path):
-    db_path = compact(tmp_path, "name:pablo\nname:tombstoned\n")
-    assert db_path.read_text(encoding="utf-8") == ""
-
-
-# A key that is deleted and then created again stays, with its new value.
-def test_compact_keeps_recreated_key(tmp_path):
-    db_path = compact(tmp_path, "name:pablo\nname:tombstoned\nname:gonzalo\n")
-    assert db_path.read_text(encoding="utf-8") == "name:gonzalo\n"
-
-
-# Keys that were never touched stay the same and in the same order.
-def test_compact_keeps_untouched_keys_in_order(tmp_path):
-    db_path = compact(tmp_path, "a:1\nb:2\nc:3\nb:tombstoned\n")
-    assert db_path.read_text(encoding="utf-8") == "a:1\nc:3\n"
-
-
-# An empty file stays empty and does not crash.
-def test_compact_empty_file(tmp_path):
-    db_path = compact(tmp_path, "")
-    assert db_path.read_text(encoding="utf-8") == ""
-
-
-# An unterminated final record is ignored during compaction.
-def test_compact_ignores_incomplete_final_record(tmp_path):
-    db_path = compact(tmp_path, "name:pablo\nname:gonzalo")
-    assert db_path.read_text(encoding="utf-8") == "name:pablo\n"
+@pytest.mark.parametrize("content,expected", COMPACTION_TESTS)
+def test_compact(tmp_path, content, expected):
+    db_path = compact(tmp_path, content)
+    assert db_path.read_text(encoding="utf-8") == expected
 
 
 # The randomized temporary file does not stay behind after compacting.
@@ -108,7 +87,7 @@ def test_db_sync_flushes_and_syncs(tmp_path):
 
 
 def test_failed_compaction_preserves_database(tmp_path):
-    db_path = tmp_path / "test_database.txt"
+    db_path = tmp_path / "test_database.tmp"
     original = "name:pablo\nname:new\nage:30\nage:tombstoned\n"
     db_path.write_text(original, encoding="utf-8")
 
@@ -118,13 +97,13 @@ def test_failed_compaction_preserves_database(tmp_path):
                 compact_db(db)
 
     assert db_path.read_text(encoding="utf-8") == original
-    assert list(tmp_path.glob("test_database.txt.*.tmp")) == []
+    assert list(tmp_path.glob("test_database.tmp.*.tmp")) == []
 
 # If all 10 temporary file names collide, compaction raises CompactionError
 # and the original database file is left unchanged.
 def test_compact_raises_when_all_tmp_names_collide(tmp_path, monkeypatch):
     content = "name:pablo\nname:gonzalo\nother:tombstoned\n"
-    db_path = tmp_path / "test_database.txt"
+    db_path = tmp_path / "test_database.tmp"
     db_path.write_text(content, encoding="utf-8")
 
     fixed_bytes = b"\x00" * 8
