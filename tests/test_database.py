@@ -1,11 +1,11 @@
 import os
-from unittest.mock import patch
+from unittest.mock import Mock, call, patch
 
 import pytest
 
-from src.database import close_db, compact_db, db_sync, open_db, start_db
+from src.database import close_db, compact_db, create_cache, db_sync, open_db, start_db
 from src.exceptions import CompactionError, DatabaseError
-from unittest.mock import Mock, call
+from src.entries import create_entry
 
 
 def test_open_db_accepts_path(tmp_path):
@@ -67,14 +67,27 @@ def test_compact_removes_tmp_file(tmp_path):
 
 
 def test_start_db_cache_matches_file(tmp_path):
-    """start_db() loads a cache that matches the compacted file."""
+    """start_db() returns a usable file and preserves entries after restarting."""
     db_path = tmp_path / "test_database.txt"
     db_path.write_text("a:1\nb:2\na:3\nc:tombstoned\n", encoding="utf-8")
     db, cache = start_db(str(db_path))
-    close_db(db)
-    lines = db_path.read_text(encoding="utf-8").splitlines()
-    assert cache == dict(line.split(":", 1) for line in lines)
-    assert cache == {"b": "2", "a": "3"}
+    try:
+        assert not db.closed
+        lines = db_path.read_text(encoding="utf-8").splitlines()
+        assert cache == dict(line.split(":", 1) for line in lines)
+        assert cache == {"b": "2", "a": "3"}
+        create_entry("d", "4", db, cache)
+    finally:
+        close_db(db)
+
+    db, cache = start_db(str(db_path))
+    try:
+        assert not db.closed
+        lines = db_path.read_text(encoding="utf-8").splitlines()
+        assert cache == dict(line.split(":", 1) for line in lines)
+        assert cache == {"b": "2", "a": "3", "d": "4"}
+    finally:
+        close_db(db)
 
 
 def test_db_sync_flushes_and_syncs(tmp_path):
@@ -173,3 +186,48 @@ def test_close_db_closes_when_fsync_fails(monkeypatch):
         close_db(db)
 
     db.close.assert_called_once()
+
+def test_open_db_preserves_contents_and_appends(tmp_path):
+    """open_db() preserves existing contents and appends new data."""
+    db_path = tmp_path / "test_database.txt"
+    db_path.write_text("name:pablo\n", encoding="utf-8")
+
+    with open_db(db_path) as db:
+        db.write("city:Madrid\n")
+        db.seek(0)
+        db.write("age:25\n")
+
+    assert db_path.read_text(encoding="utf-8") == "name:pablo\ncity:Madrid\nage:25\n"
+
+
+def test_create_cache_rewinds_and_preserves_values(tmp_path):
+    """create_cache() rewinds and preserves empty and Unicode values."""
+    db_path = tmp_path / "test_database.txt"
+    db_path.write_text("empty:\nciudad:FuenteElSaz\n", encoding="utf-8")
+
+    with open_db(db_path) as db:
+        db.seek(0)
+        db.readline()
+        cache = create_cache(db)
+
+    assert cache == {"empty": "", "ciudad": "FuenteElSaz"}
+
+def test_start_db_closes_file_when_compaction_fails(tmp_path):
+    """start_db() closes the file and propagates compaction errors."""
+    db_path = tmp_path / "test_database.txt"
+    db_path.write_text("name:pablo\n", encoding="utf-8")
+    db = open_db(db_path)
+    error = OSError("compaction failed")
+
+    try:
+        with (
+            patch("src.database.open_db", return_value=db),
+            patch("src.database.compact_db", side_effect=error),
+            pytest.raises(OSError) as exc_info,
+        ):
+            start_db(str(db_path))
+
+        assert exc_info.value is error
+        assert db.closed
+    finally:
+        db.close()
