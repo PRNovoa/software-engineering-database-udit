@@ -203,14 +203,14 @@ def test_open_db_preserves_contents_and_appends(tmp_path):
 def test_create_cache_rewinds_and_preserves_values(tmp_path):
     """create_cache() rewinds and preserves empty and Unicode values."""
     db_path = tmp_path / "test_database.txt"
-    db_path.write_text("empty:\nciudad:FuenteElSaz\n", encoding="utf-8")
+    db_path.write_text("empty:\nciudad:Aragón\n", encoding="utf-8")
 
     with open_db(db_path) as db:
         db.seek(0)
         db.readline()
         cache = create_cache(db)
 
-    assert cache == {"empty": "", "ciudad": "FuenteElSaz"}
+    assert cache == {"empty": "", "ciudad": "Aragón"}
 
 def test_start_db_closes_file_when_compaction_fails(tmp_path):
     """start_db() closes the file and propagates compaction errors."""
