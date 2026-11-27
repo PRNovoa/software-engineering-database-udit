@@ -12,7 +12,9 @@ Python.
 | | |
 |---|---|
 | **Python** | `>=3.14,<3.16` |
-| **Dependencies** | No runtime dependencies beyond the Python standard library |
+| **Runtime dependencies** | No dependencies beyond the Python standard library |
+| **Development dependencies** | `pytest>=8.0` |
+| **Build dependencies** | `setuptools>=61.0` |
 
 ## Setup
 
@@ -42,20 +44,6 @@ pytest
 ```
 
 The test suite is configured to run with pytest.
-
-## Project structure
-
-```text
-docs/
-└── design.md
-src/
-├── __init__.py
-├── database.py
-└── entries.py
-tests/
-└── test_entries.py
-pyproject.toml
-```
 
 > [!IMPORTANT]
 > See [CONTRIBUTING.md](CONTRIBUTING.md) for branch, test, and approval
