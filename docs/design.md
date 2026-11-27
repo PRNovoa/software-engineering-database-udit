@@ -33,6 +33,9 @@ flowchart LR
 > [!NOTE]
 > `open_db()` opens the file in `a+` mode, so if it doesn't exist it gets created instead of raising.
 
+> [!WARNING]
+> Only one instance per database file is supported, and nothing blocks a second one (#110). If `start_db()` is called twice on the same file, each instance keeps its own cache and doesn't see the other's writes. The second `start_db()` also compacts and replaces the file, so on Linux/macOS the first instance keeps writing to the old file and its writes are lost, and on Windows the second instance fails to start.
+
 ```mermaid
 flowchart LR
     A[open_db] --> B[compact_db] --> C[close] --> D[open_db] --> E[load cache] --> F([db, cache])
